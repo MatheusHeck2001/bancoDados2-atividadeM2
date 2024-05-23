@@ -25,21 +25,31 @@ class MongoDbConnection {
         }
     }
 
-    async findAllEmployeesFromCurrentManager(searchItem) {
+    async findAllEmployeesFromCurrentManager(emp_no, first_name) {
         const mongodbConnection = new MongoClient(MONGODB_URI_CONNECTION);
         let pipeline = [];
-        if (typeof searchItem === 'number') {
-            console.log('entered string')
-            pipeline = [
-                { $match: { 'currentManager.employee.emp_no': searchItem } }
-            ];
-        }
-        else if (typeof searchItem === 'string') {
-            console.log('entered number')
 
-            pipeline = [
-                { $match: { 'currentManager.employee.first_name': searchItem } }
-            ];
+        if (emp_no !== '') {
+            if (first_name !== '') {
+                pipeline = [ {
+                    $match: {
+                        $or: [
+                            { 'currentManager.employee.emp_no': emp_no },
+                            { 'currentManager.employee.first_name': first_name }
+                        ]
+                    }
+                } ];
+            }
+            else {
+                pipeline = [ { $match: { 'currentManager.employee.emp_no': emp_no } } ];
+            }
+        }
+        else if(first_name !== '') {
+            pipeline = [ { $match: { 'currentManager.employee.first_name': first_name } } ]; 
+        }
+        else {
+            console.log('no arguments passed');
+            return;
         }
 
         try {
@@ -47,10 +57,12 @@ class MongoDbConnection {
             const collection = database.collection(MONGODB_COLLECTION);
             let aggCursor = collection.aggregate(pipeline);
 
+            let counter = 0;
             for await (const agg of aggCursor) {
-                console.log(agg);
+                //console.log(agg);
+                counter++;
             }
-
+            console.log(counter)
         }
         catch (e) {
             console.error('aggregation error - findAllEmployeesFromCurrentManager', e);
@@ -97,16 +109,19 @@ class MongoDbConnection {
         }
 
     }
-    
+
     async getAverageSalaryByDept(dept_no) {
         const mongodbConnection = new MongoClient(MONGODB_URI_CONNECTION);
 
         let pipeline = [
             { $match: { 'currentDept.dept_no': dept_no } },
-            { $group: { _id: '$currentDept.dept_no',
-                        averageSalariesDept: { 
-                            $avg: '$currentSalary.salary' } 
-                        }
+            {
+                $group: {
+                    _id: '$currentDept.dept_no',
+                    averageSalariesDept: {
+                        $avg: '$currentSalary.salary'
+                    }
+                }
             }
         ];
 

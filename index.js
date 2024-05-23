@@ -5,21 +5,22 @@ let synchronizer = new Synchronizer();
 let mongo = new MongoDbConnection();
 
 async function main(){    
-    synchronizer.synchronizeMySqlAndMongoDb();
+    await synchronizer.synchronizeMySqlAndMongoDb();
 
-    mongo.findAllEmployeesFromCurrentManager(110567);
-    mongo.findAllEmployeesFromCurrentManager('Leon');
-    mongo.findAllEmployeesLinkedToTitleAllTime('Senior Engineer');
-    mongo.findAllEmployeesLinkedToCurrentDept('d001');
-    mongo.getAverageSalaryByDept('d001');
-    mongo.getAverageSalaryByDept('d002');
-    mongo.getAverageSalaryByDept('d003');
-    mongo.getAverageSalaryByDept('d004');
-    mongo.getAverageSalaryByDept('d005');
-    mongo.getAverageSalaryByDept('d006');
-    mongo.getAverageSalaryByDept('d007');
-    mongo.getAverageSalaryByDept('d008');
-    mongo.getAverageSalaryByDept('d009');
+    await mongo.findAllEmployeesFromCurrentManager(110567, '');
+    await mongo.findAllEmployeesFromCurrentManager('', 'Leon');
+    await mongo.findAllEmployeesFromCurrentManager(110567, 'Oscar');
+    await mongo.findAllEmployeesLinkedToTitleAllTime('Senior Engineer');
+    await mongo.findAllEmployeesLinkedToCurrentDept('d001');
+    await mongo.getAverageSalaryByDept('d001');
+    await mongo.getAverageSalaryByDept('d002');
+    await mongo.getAverageSalaryByDept('d003');
+    await mongo.getAverageSalaryByDept('d004');
+    await mongo.getAverageSalaryByDept('d005');
+    await mongo.getAverageSalaryByDept('d006');
+    await mongo.getAverageSalaryByDept('d007');
+    await mongo.getAverageSalaryByDept('d008');
+    await mongo.getAverageSalaryByDept('d009');
 }
 
 main();
