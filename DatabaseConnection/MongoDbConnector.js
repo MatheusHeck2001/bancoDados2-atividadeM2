@@ -105,13 +105,13 @@ class MongoDbConnection {
             const database = mongodbConnection.db(MONGODB_DATABASE);
             const collection = database.collection(MONGODB_COLLECTION);
             let aggCursor = collection.find(query);
-            
+
             for await (const agg of aggCursor) {
                 console.log(agg);
             }
         }
         catch (e) {
-            console.error('aggregation error - findAllEmployeesLinkedToTitle', e);
+            console.error('aggregation error - findAllEmployeesLinkedToCurrentDept', e);
         }
 
     }
