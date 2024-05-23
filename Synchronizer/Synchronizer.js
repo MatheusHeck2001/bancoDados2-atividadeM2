@@ -6,6 +6,7 @@ const mongoDb = new MongoDbConnection();
 
 class Synchronizer {
     async synchronizeMySqlAndMongoDb(){    
+        mongoDb.deleteAllDocuments();
         let employees = await mySql.findAllEmployees();
         for (let employee of employees) {
             let employeeCreated = await this.createEmployeeToMongoDb(employee.emp_no);

@@ -25,27 +25,39 @@ class MongoDbConnection {
         }
     }
 
+    async deleteAllDocuments(){
+        const mongodbConnection = new MongoClient(MONGODB_URI_CONNECTION);
+        try {
+            const database = mongodbConnection.db(MONGODB_DATABASE);
+            const collection = database.collection(MONGODB_COLLECTION);
+            collection.deleteMany();
+        }
+        catch (e) {
+            console.error('Ocorreu um erro ao excluir os documentos', e);
+        }
+        finally {
+            await mongodbConnection.close();
+        }
+    }
+
     async findAllEmployeesFromCurrentManager(emp_no, first_name) {
         const mongodbConnection = new MongoClient(MONGODB_URI_CONNECTION);
-        let pipeline = [];
-
+        let query = '';
         if (emp_no !== '') {
             if (first_name !== '') {
-                pipeline = [ {
-                    $match: {
+                query =  {
                         $or: [
                             { 'currentManager.employee.emp_no': emp_no },
                             { 'currentManager.employee.first_name': first_name }
                         ]
                     }
-                } ];
             }
             else {
-                pipeline = [ { $match: { 'currentManager.employee.emp_no': emp_no } } ];
+                query =  { 'currentManager.employee.emp_no': emp_no } ;
             }
         }
         else if(first_name !== '') {
-            pipeline = [ { $match: { 'currentManager.employee.first_name': first_name } } ]; 
+            query = { 'currentManager.employee.first_name': first_name }; 
         }
         else {
             console.log('no arguments passed');
@@ -55,14 +67,11 @@ class MongoDbConnection {
         try {
             const database = mongodbConnection.db(MONGODB_DATABASE);
             const collection = database.collection(MONGODB_COLLECTION);
-            let aggCursor = collection.aggregate(pipeline);
+            let aggCursor = collection.find(query);
 
-            let counter = 0;
             for await (const agg of aggCursor) {
-                //console.log(agg);
-                counter++;
+                console.log(agg);
             }
-            console.log(counter)
         }
         catch (e) {
             console.error('aggregation error - findAllEmployeesFromCurrentManager', e);
@@ -72,14 +81,12 @@ class MongoDbConnection {
 
     async findAllEmployeesLinkedToTitleAllTime(searchItem) {
         const mongodbConnection = new MongoClient(MONGODB_URI_CONNECTION);
-        let pipeline = [
-            { $match: { 'titles.title': searchItem } }
-        ];
+        let query =  { 'titles.title': searchItem } ;
 
         try {
             const database = mongodbConnection.db(MONGODB_DATABASE);
             const collection = database.collection(MONGODB_COLLECTION);
-            let aggCursor = collection.aggregate(pipeline);
+            let aggCursor = collection.find(query);
             for await (const agg of aggCursor) {
                 console.log(agg);
             }
@@ -92,14 +99,13 @@ class MongoDbConnection {
 
     async findAllEmployeesLinkedToCurrentDept(searchItem) {
         const mongodbConnection = new MongoClient(MONGODB_URI_CONNECTION);
-        let pipeline = [
-            { $match: { 'currentDept.dept_no': searchItem } }
-        ];
+        let query = { 'currentDept.dept_no': searchItem };
 
         try {
             const database = mongodbConnection.db(MONGODB_DATABASE);
             const collection = database.collection(MONGODB_COLLECTION);
-            let aggCursor = collection.aggregate(pipeline);
+            let aggCursor = collection.find(query);
+            
             for await (const agg of aggCursor) {
                 console.log(agg);
             }
